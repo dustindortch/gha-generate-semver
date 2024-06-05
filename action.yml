@@ -67,9 +67,11 @@ runs:
         if [[ $bumpMajor != 'true' ]]; then
           git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'minor' -e 'feature' -e 'enhancement' && minor=$((minor + 1)) && bumpMinor='true' || true
           echo "bumpMinor: ${bumpMinor:-false}"
-        elif [[ $bumpMinor != 'true' ]]; then
+        fi
+
+        if [[ $bumpMajor != 'true' && $bumpMinor != 'true' ]]; then
           git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'hotfix' -e 'bugfix' -e 'fix' && patch=$((patch + 1)) && bumpPatch='true' || true
-          echo "bumpPatch=${bumpPatch:-false}"
+          echo "bumpPatch: ${bumpPatch:-false}"
         fi
 
         if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
