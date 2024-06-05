@@ -36,6 +36,7 @@ runs:
         echo "DEFAULT_VERSION=${{ inputs.prefix }}0.0.0" | tee -a $GITHUB_ENV
         version=$(git describe --tags --abbrev=0 2>/dev/null || echo $DEFAULT_VERSION)
         RELEASE_VERSION="${version//${{ inputs.prefix }}}"
+        echo "Release version: ${RELEASE_VERSION}"
         IFS='.' read -r major minor patch <<< $RELEASE_VERSION
         echo "major=$major" | tee -a $GITHUB_ENV
         echo "minor=$minor" | tee -a $GITHUB_ENV
