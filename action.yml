@@ -62,14 +62,14 @@ runs:
         currentCommitHash=$(git rev-parse --verify HEAD) && echo "Current commit hash: ${currentCommitHash}"
 
         git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'major' -e 'breaking' && major=$((major + 1)) && bumpMajor='true' || true
-        echo "bumpMajor=${bumpMajor}"
+        echo "bumpMajor=${bumpMajor:-false}"
 
         if [[ $bumpMajor != 'true' ]]; then
           git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'minor' -e 'feature' -e 'enhancement' && minor=$((minor + 1)) && bumpMinor='true' || true
-          echo "bumpMinor=${bumpMinor}"
+          echo "bumpMinor ${bumpMinor:-false}"
         else
           git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'hotfix' -e 'bugfix' -e 'fix' && patch=$((patch + 1)) && bumpPatch='true' || true
-          echo "bumpPatch=${bumpPatch}"
+          echo "bumpPatch=${bumpPatch:-false}"
         fi
 
         if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
