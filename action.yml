@@ -3,6 +3,12 @@ author: Dustin Dortch
 name: Generate Semantic Version Number
 description: Generates a Semantic Version compliant number based on the commit history.
 
+inputs:
+  prefix:
+    default: 'v'
+    description: 'Version tag prefix (default: v)'
+    required: false
+
 outputs:
   new-version:
     description: Semantic Version number based on commit history.
@@ -27,9 +33,12 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_WORKSPACE
-        DEFAULT_VERSION="v0.0.0"
+        major=0
+        minor=0
+        patch=0
+        DEFAULT_VERSION="${{ inputs.prefix }}${major}.${minor}.${patch}"
         version=$(git describe --tags --abbrev=0 2>/dev/null || echo $DEFAULT_VERSION)
-        RELEASE_VERSION="${version//v}"
+        RELEASE_VERSION="${version//${{ inputs.prefix }}}"
         IFS='.' read -r major minor patch <<< $RELEASE_VERSION
         echo "major=$major" | tee $GITHUB_ENV
         echo "minor=$minor" | tee -a $GITHUB_ENV
@@ -44,7 +53,7 @@ runs:
         previousVersion=${{ steps.previous-version.outputs.version }}
 
         previousCommitHash=$(git rev-list --max-parents=0 HEAD)
-        if [[ $previousVersion != 'v0.0.0' ]]; then
+        if [[ $previousVersion != $DEFAULT_VERSION ]]; then
           previousCommitHash=$(git rev-list ${previousVersion})
         fi
 
@@ -65,5 +74,5 @@ runs:
           exit 2
         fi
 
-        echo "version=v${major}.${minor}.${patch}" | tee $GITHUB_OUTPUT
+        echo "version=${{ inputs.prefix }}${major}.${minor}.${patch}" | tee $GITHUB_OUTPUT
 ...
