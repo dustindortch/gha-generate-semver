@@ -49,12 +49,12 @@ runs:
         fi
 
         currentCommitHash=$(git rev-list HEAD)
-        git log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'major' -e 'breaking' -q && major=$((major + 1)) && bumpMajor='true'
+        git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'major' -e 'breaking' -q && major=$((major + 1)) && bumpMajor='true'
 
         if [[ $bumpMajor != 'true' ]]; then
-          git log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'minor' -e 'feature' -e 'enhancement' -q && minor=$((minor + 1)) && bumpMinor='true'
+          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'minor' -e 'feature' -e 'enhancement' -q && minor=$((minor + 1)) && bumpMinor='true'
         else
-          git log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'hotfix' -e 'bugfix' -e 'enhancement' -q && patch=$((patch + 1)) && bumpPatch='true'
+          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'hotfix' -e 'bugfix' -e 'enhancement' -q && patch=$((patch + 1)) && bumpPatch='true'
         fi
 
         if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
