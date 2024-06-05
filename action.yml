@@ -36,14 +36,14 @@ runs:
         major=0
         minor=0
         patch=0
-        DEFAULT_VERSION="${{ inputs.prefix }}${major}.${minor}.${patch}"
+        echo "DEFAULT_VERSION=${{ inputs.prefix }}${major}.${minor}.${patch}" | tee -a $GITHUB_ENV
         version=$(git describe --tags --abbrev=0 2>/dev/null || echo $DEFAULT_VERSION)
         RELEASE_VERSION="${version//${{ inputs.prefix }}}"
         IFS='.' read -r major minor patch <<< $RELEASE_VERSION
-        echo "major=$major" | tee $GITHUB_ENV
+        echo "major=$major" | tee -a $GITHUB_ENV
         echo "minor=$minor" | tee -a $GITHUB_ENV
         echo "patch=$patch" | tee -a $GITHUB_ENV
-        echo "version=$version" | tee $GITHUB_OUTPUT
+        echo "version=$version" | tee -a $GITHUB_OUTPUT
 
     - name: Generate Version
       id: new-version
@@ -74,5 +74,5 @@ runs:
           exit 2
         fi
 
-        echo "version=${{ inputs.prefix }}${major}.${minor}.${patch}" | tee $GITHUB_OUTPUT
+        echo "version=${{ inputs.prefix }}${major}.${minor}.${patch}" | tee -a $GITHUB_OUTPUT
 ...
