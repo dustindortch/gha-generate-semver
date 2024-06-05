@@ -44,7 +44,7 @@ runs:
         previousVersion=${{ steps.previous-version.outputs.version }}
 
         previousCommitHash=$(git rev-list --max-parents=0 HEAD)
-        if [ $previosVersion -ne 'v0.0.0']; then
+        if [ $previousVersion != 'v0.0.0' ]; then
           previousCommitHash=$(git rev-list ${previousVersion})
         fi
 
@@ -58,7 +58,7 @@ runs:
         fi
 
         if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
-          echo "No changes detected.  Bumping patch version."
+          echo "No changes detected.  No release."
           exit 2
         fi
 
