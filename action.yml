@@ -54,7 +54,7 @@ runs:
 
         previousCommitHash=$(git rev-list --max-parents=0 HEAD)
         if [[ $previousVersion != "${{ inputs.prefix }}0.0.0" ]]; then
-          previousCommitHash=$(git rev-list ${previousVersion})
+          previousCommitHash=$(git rev-parse ${previousVersion})
         fi
 
         echo "Previous commit hash: ${previousCommitHash}"
