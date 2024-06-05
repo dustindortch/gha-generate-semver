@@ -50,7 +50,7 @@ runs:
 
         echo "Previous commit hash: ${previousCommitHash}"
 
-        currentCommitHash=$(git rev-list HEAD) && echo "Current commit hash: ${currentCommitHash}"
+        currentCommitHash=$(git rev-parse --verify HEAD) && echo "Current commit hash: ${currentCommitHash}"
         echo "Just running git log to see what's up."
         git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}"
 
