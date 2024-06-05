@@ -33,12 +33,9 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_WORKSPACE
-        major=0
-        minor=0
-        patch=0
-        echo "DEFAULT_VERSION=${{ inputs.prefix }}${major}.${minor}.${patch}" | tee -a $GITHUB_ENV
+        echo "DEFAULT_VERSION=${{ inputs.prefix }}0.0.0" | tee -a $GITHUB_ENV
         version=$(git describe --tags --abbrev=0 2>/dev/null || echo $DEFAULT_VERSION)
-        RELEASE_VERSION="${version//${{ inputs.prefix }}"
+        RELEASE_VERSION="${version//${{ inputs.prefix }}}"
         IFS='.' read -r major minor patch <<< $RELEASE_VERSION
         echo "major=$major" | tee -a $GITHUB_ENV
         echo "minor=$minor" | tee -a $GITHUB_ENV
