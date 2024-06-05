@@ -61,12 +61,12 @@ runs:
 
         currentCommitHash=$(git rev-parse --verify HEAD) && echo "Current commit hash: ${currentCommitHash}"
 
-        git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'major' -e 'breaking' -q && major=$((major + 1)) && bumpMajor='true'
+        git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'major' -e 'breaking' && major=$((major + 1)) && bumpMajor='true' || true
 
         if [[ $bumpMajor != 'true' ]]; then
-          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'minor' -e 'feature' -e 'enhancement' -q && minor=$((minor + 1)) && bumpMinor='true'
+          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'minor' -e 'feature' -e 'enhancement' && minor=$((minor + 1)) && bumpMinor='true' || true
         else
-          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'hotfix' -e 'bugfix' -e 'enhancement' -q && patch=$((patch + 1)) && bumpPatch='true'
+          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'hotfix' -e 'bugfix' -e 'fix' -q && patch=$((patch + 1)) && bumpPatch='true' || true
         fi
 
         if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
