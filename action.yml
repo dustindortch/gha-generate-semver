@@ -51,18 +51,21 @@ runs:
         echo "Previous commit hash: ${previousCommitHash}"
 
         currentCommitHash=$(git rev-list HEAD) && echo "Current commit hash: ${currentCommitHash}"
-        git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'major' -e 'breaking' -q && major=$((major + 1)) && bumpMajor='true'
+        echo "Just running git log to see what's up."
+        git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}"
 
-        if [[ $bumpMajor != 'true' ]]; then
-          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'minor' -e 'feature' -e 'enhancement' -q && minor=$((minor + 1)) && bumpMinor='true'
-        else
-          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'hotfix' -e 'bugfix' -e 'enhancement' -q && patch=$((patch + 1)) && bumpPatch='true'
-        fi
+        # git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'major' -e 'breaking' -q && major=$((major + 1)) && bumpMajor='true'
 
-        if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
-          echo "No changes detected.  No release."
-          exit 2
-        fi
+        # if [[ $bumpMajor != 'true' ]]; then
+        #   git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'minor' -e 'feature' -e 'enhancement' -q && minor=$((minor + 1)) && bumpMinor='true'
+        # else
+        #   git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'hotfix' -e 'bugfix' -e 'enhancement' -q && patch=$((patch + 1)) && bumpPatch='true'
+        # fi
 
-        echo "version=v${major}.${minor}.${patch}" | tee $GITHUB_OUTPUT
+        # if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
+        #   echo "No changes detected.  No release."
+        #   exit 2
+        # fi
+
+        # echo "version=v${major}.${minor}.${patch}" | tee $GITHUB_OUTPUT
 ...
