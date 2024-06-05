@@ -1,0 +1,66 @@
+---
+author: Dustin Dortch
+name: Generate Semantic Version Number
+description: Generates a Semantic Version compliant number based on the commit history.
+
+outputs:
+  new-version:
+    description: Semantic Version number based on commit history.
+    value: ${{ steps.new-version.outputs.version }}
+  previous-version:
+    description: Previous Semantic Version number based on commit history.
+    value: ${{ steps.previous-version.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Full git history
+      id: git-history
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        git pull --unshallow
+        git fetch --tags
+
+    - name: Previous Version
+      id: previous-version
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        DEFAULT_VERSION="v0.0.0"
+        version=$(git describe --tags --abbrev=0 2>/dev/null || echo $DEFAULT_VERSION)
+        RELEASE_VERSION="${version//v}"
+        IFS='.' read -r major minor patch <<< $RELEASE_VERSION
+        echo "major=$major" | tee $GITHUB_ENV
+        echo "minor=$minor" | tee -a $GITHUB_ENV
+        echo "patch=$patch" | tee -a $GITHUB_ENV
+        echo "version=$version" | tee $GITHUB_OUTPUT
+
+    - name: Generate Version
+      id: new-version
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        previousVersion=${{ steps.previous-version.outputs.version }}
+
+        previousCommitHash=$(git rev-list --max-parents=0 HEAD)
+        if [ $previosVersion -ne 'v0.0.0']; then
+          previousCommitHash=$(git rev-list ${previousVersion})
+        fi
+
+        currentCommitHash=$(git rev-list HEAD)
+        git log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'major' -e 'breaking' -q && major=$((major + 1)) && bumpMajor='true'
+
+        if [[ $bumpMajor != 'true' ]]; then
+          git log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'minor' -e 'feature' -e 'enhancement' -q && minor=$((minor + 1)) && bumpMinor='true'
+        else
+          git log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'hotfix' -e 'bugfix' -e 'enhancement' -q && patch=$((patch + 1)) && bumpPatch='true'
+        fi
+
+        if [[ -z $bumpMajor && -z $bumpMinor && -z $bumpPatch ]]; then
+          echo "No changes detected.  Bumping patch version."
+          exit 2
+        fi
+
+        echo "version=v${major}.${minor}.${patch}" | tee $GITHUB_OUTPUT
+...
