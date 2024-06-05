@@ -48,7 +48,9 @@ runs:
           previousCommitHash=$(git rev-list ${previousVersion})
         fi
 
-        currentCommitHash=$(git rev-list HEAD)
+        echo "Previous commit hash: ${previousCommitHash}"
+
+        currentCommitHash=$(git rev-list HEAD) && echo "Current commit hash: ${currentCommitHash}"
         git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -i -e 'major' -e 'breaking' -q && major=$((major + 1)) && bumpMajor='true'
 
         if [[ $bumpMajor != 'true' ]]; then
