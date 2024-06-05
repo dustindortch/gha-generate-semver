@@ -33,7 +33,7 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_WORKSPACE
-        DEFAULT_VERSION=${{ inputs.prefix }}0.0.0"
+        DEFAULT_VERSION="${{ inputs.prefix }}0.0.0"
         echo "Default version: $DEFAULT_VERSION"
         version=$(git describe --tags --abbrev=0 2>/dev/null || echo $DEFAULT_VERSION)
         echo "version: $version"
