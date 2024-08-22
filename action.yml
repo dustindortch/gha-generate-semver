@@ -4,7 +4,7 @@ name: Generate Semantic Version Number
 description: Generates a Semantic Version compliant number based on the commit history.
 
 inputs:
-  prefix:
+  version_prefix:
     default: 'v'
     description: 'Version tag prefix (default: v)'
     required: false
@@ -33,11 +33,11 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_WORKSPACE
-        DEFAULT_VERSION="${{ inputs.prefix }}0.0.0"
+        DEFAULT_VERSION="${{ inputs.version_prefix }}0.0.0"
         echo "Default version: $DEFAULT_VERSION"
         version=$(git describe --tags --abbrev=0 2>/dev/null || echo $DEFAULT_VERSION)
         echo "version: $version"
-        RELEASE_VERSION="${version//${{ inputs.prefix }}}"
+        RELEASE_VERSION="${version//${{ inputs.version_prefix }}}"
         echo "Release version: ${RELEASE_VERSION}"
         IFS='.' read -r major minor patch <<< $RELEASE_VERSION
         echo "major=$major" | tee -a $GITHUB_ENV
@@ -53,24 +53,24 @@ runs:
         previousVersion=${{ steps.previous-version.outputs.version }}
 
         previousCommitHash=$(git rev-list --max-parents=0 HEAD)
-        if [[ $previousVersion != "${{ inputs.prefix }}0.0.0" ]]; then
-          previousCommitHash=$(git rev-parse ${previousVersion}^0)
+        if [[ $previousVersion != "${{ inputs.version_prefix }}0.0.0" ]]; then
+          previousCommitHash=$(git rev-parse ${{ inputs.version_prefix }}${previousVersion})
         fi
 
         echo "Previous commit hash: ${previousCommitHash}"
 
         currentCommitHash=$(git rev-parse --verify HEAD) && echo "Current commit hash: ${currentCommitHash}"
 
-        git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'breaking' -e 'major' && major=$((major + 1)) && bumpMajor='true' || true
+        git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'breaking' -e 'remove' -e 'delete' -e 'major' && major=$((major + 1)) && bumpMajor='true' || true
         echo "bumpMajor: ${bumpMajor:-false}"
 
         if [[ $bumpMajor != 'true' ]]; then
-          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'enhancement' -e 'feature' -e 'minor' && minor=$((minor + 1)) && bumpMinor='true' || true
+          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'enhancement' -e 'feature' -e 'add' -e 'minor' && minor=$((minor + 1)) && bumpMinor='true' || true
           echo "bumpMinor: ${bumpMinor:-false}"
         fi
 
         if [[ $bumpMajor != 'true' && $bumpMinor != 'true' ]]; then
-          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'bugfix' -e 'fix' -e 'hotfix' -e 'patch' && patch=$((patch + 1)) && bumpPatch='true' || true
+          git --no-pager log --pretty=oneline "${previousCommitHash}".."${currentCommitHash}" | grep -q -i -e 'bug' -e 'fix' -e 'typo' -e 'patch' && patch=$((patch + 1)) && bumpPatch='true' || true
           echo "bumpPatch: ${bumpPatch:-false}"
         fi
 
@@ -79,5 +79,5 @@ runs:
           exit 2
         fi
 
-        echo "version=${{ inputs.prefix }}${major}.${minor}.${patch}" | tee -a $GITHUB_OUTPUT
+        echo "version=${{ inputs.version_prefix }}${major}.${minor}.${patch}" | tee -a $GITHUB_OUTPUT
 ...

@@ -4,9 +4,9 @@ This action generates a [Semantic Versioning](https://semver.org) compliant vers
 
 It revises versions with the following contexts (commit messages containing, case-insensitive):
 
-* major - [breaking, major]
-* minor - [enhancement, feature, minor]
-* patch - [bugfix, fix, hotfix, patch]
+* major - [breaking, remove, delete, major]
+* minor - [enhancement, feature, add, minor]
+* patch - [bug, fix, typo, patch]
 
 This is designed to work with [dustindortch/gha-cherry-pick-release-branch@v1](/dustindortch/gha-cherry-pick-release-branch)
 
